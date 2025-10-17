@@ -21,7 +21,7 @@ public class InBodyData {
     @Column(nullable = false, precision = 5, scale = 2) // e.g., 99.99
     private BigDecimal weight;
 
-    @Column(name = "body_fat", nullable = false, precision = 5, scale = 2) // e.g., 99.99
+    @Column(name = "bodyFatPercentage", nullable = false, precision = 5, scale = 2) // e.g., 99.99
     private BigDecimal bodyFat;
 
     @Column(name = "muscle_mass", nullable = false, precision = 5, scale = 2) // e.g., 99.99

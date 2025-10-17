@@ -3,7 +3,6 @@ package com.fitness.coaching.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import javax.management.relation.Role;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,6 +19,9 @@ public class User {
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
+
+    @Column
+    private String name;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -43,6 +45,7 @@ public class User {
     }
 
     public enum Role {
+        ADMIN,
         MEMBER,
         TRAINER
     }
