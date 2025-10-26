@@ -14,9 +14,18 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable()) // H2 Console용
+                )
                 .authorizeHttpRequests(auth ->
                         auth
-                        .requestMatchers("/api/health").permitAll()
+                        .requestMatchers(
+                                "/api/health",
+                                "/h2-console/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> {});
