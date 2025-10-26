@@ -3,11 +3,18 @@ name: Deploy to Cloud Run
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'build.gradle'
+      - 'settings.gradle'
+      - 'Dockerfile'
+      - '.github/workflows/deploy-cloud-run.yml'
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   SERVICE_NAME: fitness-coaching-api
   REGION: asia-northeast3
+  REPOSITORY: fitness-coaching-api
 
 jobs:
   deploy:
@@ -26,37 +33,31 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Configure Docker for Artifact Registry
-        run: |
-          gcloud auth configure-docker $REGION-docker.pkg.dev
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      - name: Build Docker Image
+      - name: Build and Push Docker Image
         run: |
-          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME/$SERVICE_NAME:$GITHUB_SHA .
-          docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME/$SERVICE_NAME:latest .
-
-      - name: Push Docker Image
-        run: |
-          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME/$SERVICE_NAME:$GITHUB_SHA
-          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME/$SERVICE_NAME:latest
+          IMAGE=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy $SERVICE_NAME \
-            --image $REGION-docker.pkg.dev/$PROJECT_ID/$SERVICE_NAME/$SERVICE_NAME:$GITHUB_SHA \
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
             --platform managed \
-            --region $REGION \
+            --region ${{ env.REGION }} \
             --allow-unauthenticated \
             --port 8080 \
             --memory 512Mi \
             --cpu 1 \
-            --set-env-vars "DB_URL=${{ secrets.DB_URL }}" \
-            --set-env-vars "DB_USERNAME=${{ secrets.DB_USERNAME }}" \
-            --set-env-vars "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
-            --set-env-vars "ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }}" \
-            --set-env-vars "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}"
+            --min-instances 0 \
+            --max-instances 10 \
+            --set-env-vars "DB_URL=${{ secrets.DB_URL }},DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME }},ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}"
 
       - name: Show Service URL
         run: |
           echo "🚀 Deployment successful!"
           echo "Service URL:"
-          gcloud run services describe $SERVICE_NAME --region $REGION --format 'value(status.url)'
+          gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ env.REGION }} --format 'value(status.url)'
