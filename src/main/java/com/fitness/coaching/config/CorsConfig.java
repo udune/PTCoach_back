@@ -11,8 +11,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("cors.allowed-origins",
-                        "http://localhost:3000",
+                .allowedOrigins("http://localhost:3000",
                         "http://localhost:3001",
                         "http://localhost:5173",
                         "https://pt-coach.vercel.app")
