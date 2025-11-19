@@ -30,7 +30,7 @@ server:
 
 # CORS 설정 (운영 환경 - 환경 변수로 설정)
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://fitness-coaching-api-398791061190.asia-northeast3.run.app}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://pt-coach.vercel.app}
 
 # Swagger 설정 (운영 환경에서도 활성화 - HTTP Basic Auth로 보호됨)
 springdoc:
