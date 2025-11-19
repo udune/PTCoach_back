@@ -43,3 +43,8 @@ logging:
   level:
     root: WARN
     com.fitness.coaching: INFO
+
+# JWT 설정
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}

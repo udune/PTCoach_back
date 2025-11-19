@@ -21,3 +21,7 @@ spring:
     user:
       name: test-admin
       password: test-password
+
+jwt:
+  secret: test-secret-key-for-jwt-token-signing-needs-to-be-at-least-256-bits-long
+  expiration: 86400000
